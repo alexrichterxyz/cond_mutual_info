@@ -11,3 +11,39 @@ $$ I(X_1 \dots X_m;Y_1 \dots Y_n|Z_1 \dots Z_o) $$
 for discrete random variables. If your dataset contains continuous fields, I suggest you discretize them, e.g. by binning according to quantile.
 
 If you have **time-series data**, you may want to assess the impact of past states of X on current states of Y while also adjusting for past states of Y, i.e. $I(Y; X_{\mathrm{past}} |Y_{\mathrm{past}})$. This special case of CMI is also known as **transfer entropy**, denoted $T_{X\to Y}$.
+
+## Build and usage
+
+If you're on MacOS/Linux/Unix run ```./setup.sh``` file to build the shared library. If you're on Windows, you can get access to a free hosted Linux runtime through Google Colab.
+
+### Pandas DataFrame support
+
+Here's an example of how the CMI values can be estimated from Pandas DataFrames. This code would need to be contained in the project's root directory. **Ensure all variables are of float type**.
+
+```python
+import pandas as pd
+import cmipy
+
+data = pd.read_csv('your_path.csv')
+
+cmi, p_val = cmipy.conditional_mi(data=data, x='price', y='area', z=['location', 'bathrooms'], p_samples=10000)
+
+```
+
+### Numpy array support
+
+In addition to Pandas DataFrames, NumPy Arrays are also supported out-of-the-box. **Ensure all variables are of float type**.
+
+```python
+import numpy as np
+import cmipy
+
+x = np.random.randint(0, )
+
+x = np.random.randint(0, 4, size=(10000, 1)).astype(float)
+y = np.random.randint(0, 4, size=(10000, 1)).astype(float)
+z = np.random.randint(0, 4, size=(10000, 1)).astype(float)
+
+cmi, p_val =cmipy.conditional_mi(x=x, y=y, z=z, p_samples=10000)
+
+```
