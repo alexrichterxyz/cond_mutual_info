@@ -162,9 +162,11 @@ std::pair<double, double> info::conditional_mi::calculate(
 		reset_dist(m_xs, ys_shuffle, m_zs);
 
 		if(calculate_cmi() >= cmi) {
-			p_val += 1.0 / p_samples;
+			++p_val;
 		}
 	}
+
+	p_val /= p_samples;
 
 	return std::make_pair(cmi, p_val);
 }
