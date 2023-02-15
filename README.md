@@ -44,6 +44,6 @@ x = np.random.randint(0, 4, size=(10000, 1)).astype(float)
 y = np.random.randint(0, 4, size=(10000, 1)).astype(float)
 z = np.random.randint(0, 4, size=(10000, 1)).astype(float)
 
-cmi, p_val =cmipy.conditional_mi(x=x, y=y, z=z, p_samples=10000)
+cmi, p_val = cmipy.conditional_mi(x=x, y=y, z=z, p_samples=10000)
 
 ```
