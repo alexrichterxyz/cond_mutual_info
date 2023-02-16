@@ -1,3 +1,5 @@
+![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=flat-square&logo=c%2B%2B&logoColor=white) ![Python](https://img.shields.io/badge/python-3670A0?style=flat-square&logo=python&logoColor=ffdd54)
+
 # A conditional mutual information estimator
 
 Conditional mutual information (CMI) is a **model-free measure of correlation between two variables, $X$ and $Y$, controlling for the effect of a third variable $Z$**. In its simplest form, CMI can be expressed as follows
