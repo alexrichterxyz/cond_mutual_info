@@ -3,8 +3,9 @@ import ctypes
 import pandas as pd
 import numpy as np
 import math
+import pathlib
 
-info = ctypes.cdll.LoadLibrary('./build/info.so')
+info = ctypes.cdll.LoadLibrary(pathlib.Path(__file__).parent.parent / 'build/info.so')
 
 
 info.make_dblvecvec.restype = ctypes.c_void_p
