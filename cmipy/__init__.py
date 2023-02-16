@@ -1,2 +1,2 @@
 #!/usr/bin/env python3
-from .conditional_mi import conditional_mi
+from .cond_mutual_info import cond_mutual_info

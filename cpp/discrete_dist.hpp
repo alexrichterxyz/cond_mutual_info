@@ -5,15 +5,16 @@
 #include <vector>
 
 namespace info {
-class estimator;
-class conditional_mi;
 
-template <class T> struct fast_vec_hash {
+class estimator;
+class cond_mutual_info;
+
+template <class T> struct vec_hash {
 	std::hash<T> m_hash;
 	inline std::size_t operator()(const std::vector<T> &vec) const noexcept;
 };
 
-using event_hash = fast_vec_hash<double>;
+using event_hash = vec_hash<double>;
 
 class discrete_dist {
 	private:
@@ -41,7 +42,7 @@ class discrete_dist {
 	 *
 	 * @param data, a vector of double vectors
 	 */
-	inline discrete_dist(const std::vector<dblvec> &data);
+	inline discrete_dist(cdblvecvec &data);
 
 	/**
 	 * @brief Get a reference to the variable ids (e.g. X_4, X_5 -> [4,
@@ -79,7 +80,7 @@ class discrete_dist {
 	 * this corresponds to the event [X4=1.62, X_5=3.14]
 	 * @return * double
 	 */
-	inline double probability(cdblvec &event);
+	inline double probability(cdblvec &event) const;
 
 	/**
 	 * @brief Create a marginal distribution keeping only the variables with
@@ -102,7 +103,7 @@ class discrete_dist {
 	    const std::vector<std::pair<std::size_t, double>> &condition);
 
 	friend estimator;
-	friend conditional_mi;
+	friend cond_mutual_info;
 };
 
 } // namespace info
@@ -110,15 +111,14 @@ class discrete_dist {
 #include <cassert>
 #include <unordered_set>
 
-
 template <class T>
-std::size_t info::fast_vec_hash<T>::operator()(
+std::size_t info::vec_hash<T>::operator()(
     const std::vector<T> &vec) const noexcept {
 	std::size_t hash = 0x9e3779b9;
 
 	for (const auto &v : vec) {
 		// from boost
-		hash ^= m_hash(v) + 0x9e3779b9 + (hash<<6) + (hash>>2);
+		hash ^= m_hash(v) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
 	}
 
 	return hash;
@@ -126,7 +126,7 @@ std::size_t info::fast_vec_hash<T>::operator()(
 
 info::discrete_dist::discrete_dist() {}
 
-info::discrete_dist::discrete_dist(const std::vector<info::dblvec> &data) {
+info::discrete_dist::discrete_dist(info::cdblvecvec &data) {
 
 	if (data.empty()) {
 		return;
@@ -141,9 +141,10 @@ info::discrete_dist::discrete_dist(const std::vector<info::dblvec> &data) {
 
 	// assign distribution's variable ids
 	m_variables.reserve(data.size());
-	for (std::size_t i = 0; i < data.size(); ++i) {
-		m_variables.push_back(i);
+	for (std::size_t var_id = 0; var_id < data.size(); ++var_id) {
+		m_variables.push_back(var_id);
 	}
+
 	reset_var_idx();
 
 	const double sample_probability = 1.0 / size;
@@ -162,9 +163,8 @@ void info::discrete_dist::reset_var_idx() {
 	m_variables_idx.clear();
 	m_variables.reserve(m_variables.size());
 
-	std::size_t idx = 0;
-	for (const auto &var : m_variables) {
-		m_variables_idx[var] = idx++;
+	for (std::size_t var_idx = 0; var_idx < m_variables.size(); ++var_idx) {
+		m_variables_idx[m_variables[var_idx]] = var_idx;
 	}
 }
 
@@ -178,7 +178,7 @@ double info::discrete_dist::probability(
 				goto event_dissatisfied;
 			}
 		}
-		// event matche
+		// event matched
 		probability += prob;
 	event_dissatisfied:;
 	}
@@ -186,8 +186,14 @@ double info::discrete_dist::probability(
 	return probability;
 }
 
-double info::discrete_dist::probability(info::cdblvec &event) {
-	return m_probabilities[event];
+double info::discrete_dist::probability(info::cdblvec &event) const {
+	const auto it = m_probabilities.find(event);
+
+	if(it == m_probabilities.end()) {
+		return 0.0;
+	}
+
+	return it->second;
 }
 
 const std::vector<std::size_t> &info::discrete_dist::variables() const {
@@ -216,8 +222,6 @@ info::discrete_dist info::discrete_dist::marginal(
 
 		new_dist.m_probabilities[event] += probability;
 	}
-
-	
 
 	return new_dist;
 }

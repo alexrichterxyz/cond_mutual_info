@@ -6,7 +6,7 @@ namespace info {
 
 class estimator {
     public:
-    virtual std::pair<double, double> calculate(std::size_t p_samples) = 0;
+    virtual std::pair<double, double> calculate(const std::size_t p_samples, const double base) = 0;
 };
 
 }
